@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Super Campaign builder · prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F4F6F9;--surface:#FFFFFF;--surface-2:#F7F9FC;--text:#1F2937;--text-2:#5B6573;--text-3:#98A2B3;
+  --border:#DDE3EA;--border-2:#B8C0CC;--primary:#2F7CF6;--primary-ink:#FFFFFF;--primary-soft:#DCE9FF;--header:#3B82F6;
+  --and-bg:#E8F5FC;--and-bd:#9BD3F0;--and-ink:#0B5E91;--and-chip:#0095DA;
+  --or-bg:#FFF8DB;--or-bd:#F2D46B;--or-ink:#7A5C00;--or-chip:#E0B100;
+  --ok-bg:#E7F6EC;--ok-ink:#1E6B39;--bad-bg:#FCEBEB;--bad-ink:#A32D2D;--bad-bd:#E24B4A;
+  --warn-bg:#FFF8E1;--warn-bd:#F2D46B;--warn-ink:#6A4700;--dis:#E9ECF0;--shadow:0 10px 30px rgba(16,24,40,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151A;--surface:#1B1F26;--surface-2:#222730;--text:#E6E9EE;--text-2:#A9B1BD;--text-3:#77808C;
+    --border:#2E3440;--border-2:#475061;--primary:#5B97F8;--primary-ink:#0B1220;--primary-soft:#1E2A40;--header:#1F4FA8;
+    --and-bg:#11283A;--and-bd:#1F5A80;--and-ink:#8CCBF0;--and-chip:#2FA9E3;
+    --or-bg:#33290B;--or-bd:#6B5512;--or-ink:#F2D27A;--or-chip:#E0B100;
+    --ok-bg:#12301E;--ok-ink:#7FD39C;--bad-bg:#3A1717;--bad-ink:#F19A9A;--bad-bd:#E24B4A;
+    --warn-bg:#33290B;--warn-bd:#6B5512;--warn-ink:#F2D27A;--dis:#2A2F38;--shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151A;--surface:#1B1F26;--surface-2:#222730;--text:#E6E9EE;--text-2:#A9B1BD;--text-3:#77808C;
+  --border:#2E3440;--border-2:#475061;--primary:#5B97F8;--primary-ink:#0B1220;--primary-soft:#1E2A40;--header:#1F4FA8;
+  --and-bg:#11283A;--and-bd:#1F5A80;--and-ink:#8CCBF0;--and-chip:#2FA9E3;
+  --or-bg:#33290B;--or-bd:#6B5512;--or-ink:#F2D27A;--or-chip:#E0B100;
+  --ok-bg:#12301E;--ok-ink:#7FD39C;--bad-bg:#3A1717;--bad-ink:#F19A9A;--bad-bd:#E24B4A;
+  --warn-bg:#33290B;--warn-bd:#6B5512;--warn-ink:#F2D27A;--dis:#2A2F38;--shadow:0 10px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.top{background:var(--header);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px}
+.logo{font-weight:600;font-size:22px;letter-spacing:-.5px;display:flex;align-items:center;gap:3px}
+.logo .dot{width:13px;height:13px;border-radius:50%;background:#FFD43B;display:inline-block}
+.top-r{display:flex;gap:18px;align-items:center;font-size:13px}
+.proto{background:rgba(255,255,255,.18);padding:3px 10px;border-radius:999px;font-size:12px}
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr)}
+.side{background:var(--surface);border-right:1px solid var(--border);padding:24px 0;min-height:calc(100vh - 56px)}
+.welcome{padding:0 24px 18px}.w1{font-size:24px;font-weight:600}.w2{font-size:12px;color:var(--text-2)}
+.nav{padding:10px 24px;color:var(--text-2);font-size:14px}
+.nav.on{background:linear-gradient(90deg,#3B82F6,#8FD3E8);color:#fff;border-radius:0 999px 999px 0;margin-right:24px;font-weight:500}
+.main{padding:28px 32px 120px;max-width:1120px;width:100%}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr)}.side{display:none}.main{padding:20px 16px 120px}.proto{display:none}}
+h1{font-size:28px;margin:0 0 16px;font-weight:600}
+h3{font-size:16px;margin:0 0 12px;font-weight:600}
+h4{font-size:13px;margin:18px 0 8px;font-weight:600}
+.muted{color:var(--text-3)}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{padding:10px 24px;color:var(--text-2)}.tab.on{color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-1px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.sp{flex:1}
+.search input,.filter{height:40px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:0 12px;min-width:220px;font:inherit}
+.btn{background:var(--primary);color:var(--primary-ink);border:0;border-radius:999px;padding:10px 20px;font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.danger-btn{background:var(--bad-ink);color:#fff}
+.btn-o{background:var(--surface);color:var(--primary);border:1px solid var(--primary);border-radius:999px;padding:9px 18px;font-weight:500;white-space:nowrap}
+.btn-o:disabled{opacity:.4;cursor:not-allowed}
+.lnk{background:none;border:0;color:var(--primary);padding:2px 4px;font-size:13px}
+.lnk.danger{color:var(--bad-ink)}.lnk.dim{color:var(--text-3)}
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.tbl{width:100%;border-collapse:collapse;min-width:900px}
+.tbl th{text-align:left;font-weight:500;color:var(--text-2);font-size:13px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top;font-size:13px}
+.tbl tr:nth-child(even) td{background:var(--surface-2)}
+.code{font-size:11px;color:var(--text-2);letter-spacing:.2px}
+.cbx{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--text-2);cursor:pointer}
+.crumbs{font-size:13px;color:var(--text-2);margin-bottom:14px}
+.stepper{margin-bottom:18px}.st-h{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}.st-h span{color:var(--text-3);font-size:12px}.st-h span b{color:var(--text)}
+.bars{display:grid;grid-template-columns:1fr 1fr;gap:4px}.bars i{height:5px;border-radius:3px;background:var(--border)}.bars i.on{background:var(--primary)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 12px}
+@media (max-width:640px){.g2{grid-template-columns:minmax(0,1fr)}}
+.fwrap{display:block;min-width:0}
+.fld{display:flex;align-items:center;gap:6px;border:1px solid var(--border-2);border-radius:8px;padding:5px 10px;background:var(--surface);min-height:46px;position:relative}
+.fld .k{position:absolute;top:4px;left:10px;right:10px;font-size:10.5px;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fld input,.fld select{border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:13px;width:100%;padding:14px 0 0;min-width:0}
+.fld:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.fld.bad{border-color:var(--bad-bd)}.fld.bad .k{color:var(--bad-ink)}
+.fld.dis{background:var(--dis);border-color:var(--dis)}.fld.dis input,.fld.dis select{color:var(--text-2)}
+.sfx{font-size:12px;color:var(--text-2);padding-top:12px}
+.hint{display:block;font-size:11.5px;color:var(--text-3);margin:4px 0 0}
+.errt{font-size:12px;color:var(--bad-ink);margin:6px 0 0}
+.file-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.footer{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.row-b{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row-b h3,.row-b h4{margin:0}
+.outline{margin-top:8px}.outline p{margin:0 0 6px}.ol{margin:4px 0 0;padding-left:20px}.ol li{margin:3px 0}.ol .err{color:var(--bad-ink)}
+.w-and{color:var(--and-ink)}.w-or{color:var(--or-ink)}
+.formula{display:block;margin-top:10px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;overflow-x:auto;white-space:nowrap;font-family:ui-monospace,Menlo,Consolas,monospace}
+.grp{border-radius:12px;padding:12px 14px;margin-top:10px}
+.grp.and{background:var(--and-bg);border:1px solid var(--and-bd)}
+.grp.or{background:var(--or-bg);border:1px solid var(--or-bd)}
+.grp.root{margin-top:0}
+.ghd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.gl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.gr{display:flex;align-items:center;gap:8px;font-size:12px}
+.grp.and>.ghd .gl,.grp.and>.ghd .opl{color:var(--and-ink)}.grp.or>.ghd .gl,.grp.or>.ghd .opl{color:var(--or-ink)}
+.opsel{height:30px;border:1px solid var(--border-2);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;padding:0 8px}
+.grp.and>.ghd .opsel{border-color:var(--and-chip)}.grp.or>.ghd .opsel{border-color:var(--or-chip)}
+.gname-in{height:30px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:0 8px;width:170px}
+.chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border-2);color:var(--text-2);white-space:nowrap}
+.opl{font-size:13px}
+.gname{font-size:12px;color:var(--text-2)}
+.badge{font-size:11px;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.badge.bad{background:var(--bad-bg);color:var(--bad-ink)}.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:8px}
+.mrow.click{cursor:pointer}.mrow.click:hover{border-color:var(--primary)}
+.mmain{min-width:0}.mname{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13.5px;flex-wrap:wrap}
+.mname .code{font-weight:400}
+.msub{font-size:12px;color:var(--text-2);margin-top:2px}
+.mright{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.pz{font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:6px;background:var(--ok-bg);color:var(--ok-ink);white-space:nowrap}
+.pz.none{background:var(--surface);color:var(--text-2);border:1px dashed var(--border-2)}
+.okmark{color:var(--ok-ink)}
+.mform{background:var(--surface);border:2px solid var(--primary);border-radius:12px;padding:14px 16px;margin-top:8px}
+.mf-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);cursor:pointer;position:relative}
+.toggle input{position:absolute;opacity:0;width:1px;height:1px}
+.toggle .sw{width:32px;height:18px;border-radius:9px;background:var(--border-2);position:relative;transition:background .15s}
+.toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle input:checked+.sw{background:var(--primary)}.toggle input:checked+.sw::after{left:16px}
+.toggle input:focus-visible+.sw{box-shadow:0 0 0 3px var(--primary-soft)}
+.off{opacity:.55}
+.cond{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;align-items:start;margin-top:10px}
+@media (max-width:640px){.cond{grid-template-columns:minmax(0,1fr)}}
+.cond .cbx{padding-top:12px;color:var(--text)}
+.muted-block{opacity:.55}
+.empty{font-size:12.5px;color:var(--text-2);padding:12px;border:1px dashed var(--border-2);border-radius:10px;margin-top:8px;background:var(--surface)}
+.empty.err{color:var(--bad-ink);border-color:var(--bad-bd);background:var(--bad-bg)}
+.addbar{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.maxchip{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--dis);color:var(--text-2)}
+.gsum{font-size:12.5px;color:var(--text-2);margin-top:8px;background:var(--surface);border-radius:8px;padding:8px 10px}
+.ov{position:fixed;inset:0;background:rgba(10,14,20,.5);display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));z-index:50}
+.modal{background:var(--surface);border-radius:14px;padding:20px 22px;width:100%;max-width:460px;max-height:100%;overflow:auto;box-shadow:var(--shadow)}
+.modal.wide{max-width:760px}
+.modal p{margin:6px 0}
+.x{background:none;border:0;font-size:22px;line-height:1;color:var(--text-2)}
+.sum{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 12px;margin:10px 0 12px;font-size:13px}.sum dt{color:var(--text-2)}.sum dd{margin:0}
+.in-modal{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0}
+.mscroll{max-height:320px;overflow:auto;border-radius:12px}
+.warn{background:var(--warn-bg);border:1px solid var(--warn-bd);color:var(--warn-ink);border-radius:10px;padding:10px 14px;margin-top:14px;font-size:13px}
+.blocked{background:var(--bad-bg);border:1px solid var(--bad-bd);color:var(--bad-ink);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:10px}.blocked ul{margin:6px 0;padding-left:18px}
+.blocked .lnk{color:var(--bad-ink);text-decoration:underline;padding:0}
+.note{font-size:12.5px;color:var(--and-ink);background:var(--and-bg);border-radius:8px;padding:8px 12px}
+.mfoot{display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:16px}
+.lockbar{background:var(--and-bg);border:1px solid var(--and-bd);color:var(--and-ink);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#1F2937;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.notes-btn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--text);color:var(--bg);border:0;border-radius:999px;padding:10px 16px;font-size:13px}
+.notes{position:fixed;right:16px;bottom:calc(64px + env(safe-area-inset-bottom,0px));width:340px;max-width:calc(100% - 32px);max-height:70vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;z-index:40;box-shadow:var(--shadow);font-size:13px}
+.notes ul{padding-left:18px;margin:4px 0}.notes p{margin:4px 0}.k2{display:block;font-size:12px;color:var(--text-2);margin-bottom:4px}
+.notes select{height:34px;border:1px solid var(--border-2);border-radius:8px;background:var(--surface);color:var(--text);padding:0 8px;margin-bottom:10px;font:inherit}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const ENT=['Blibli','GDN','GAN','GEM','Tiket','Ranch Market','Dekoruma','Bakmi GM','Padma'];
+const EXT=['BCA (external)','Chum Bucket Corp (external)'];
+const EVENT={Blibli:'Order delivered',GDN:'Order delivered',GAN:'Order delivered',GEM:'Order delivered',Tiket:'Booking issued','Ranch Market':'Payment completed',Dekoruma:'Payment completed'};
+const ABBR={Blibli:'BLI',GDN:'GDN',GAN:'GAN',GEM:'GEM',Tiket:'TIK','Ranch Market':'RAN',Dekoruma:'DEK','Bakmi GM':'BGM',Padma:'PAD'};
+const TIERS=['Silver','Gold','Platinum','Diamond'];
+const DEALS=['Voucher Dekoruma Rp50.000','Voucher Tiket Hotel Rp100.000','Free Ongkir Blibli','Voucher Ranch Market Rp25.000'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const NAV=['Member list','Tier & benefit','Deals','Banner','Partner','Campaign','Raffle','Point conversion','Config','Block Abuser'];
+const KEY='sc-proto-v1';
+
+const uid=()=>Math.random().toString(36).slice(2,9);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(5,'0');
+function fmtNum(n){const x=Number(String(n).replace(/\D/g,''));if(!String(n).length||isNaN(x))return String(n);return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function dParts(s){const p=s.split('-').map(Number);return {y:p[0],m:p[1],d:p[2]};}
+function fmtDate(s){if(!s)return '—';const p=dParts(s);return p.d+' '+MON[p.m-1]+' '+p.y;}
+function fmtRange(a,b){if(!a||!b)return 'Period not set';const A=dParts(a),B=dParts(b);if(A.y===B.y&&A.m===B.m)return A.d+'–'+B.d+' '+MON[A.m-1];if(A.y===B.y)return A.d+' '+MON[A.m-1]+' – '+B.d+' '+MON[B.m-1];return fmtDate(a)+' – '+fmtDate(b);}
+function dt(d,t){return d?new Date(d+'T'+(t||'00:00')).getTime():NaN;}
+
+function baseSC(id,code,name){return {id,code,name,displayName:name,logo:'asset.png',campaignOwner:'Blibli',costOwner:'Blibli',
+  prize:{source:'Internal',type:'Point',partner:'',alloc:'',amount:'',expiry:'',tier:'',deal:''},
+  start:'2026-10-01',startTime:'00:00',end:'2026-10-31',endTime:'23:59',status:'inactive',edit:'draft',
+  rule:{id:'root',kind:'group',op:'and',name:'',collapsed:false,children:[]}};}
+function newMission(sc){return {id:uid(),kind:'mission',code:'',expanded:true,tried:false,f:{name:'',icon:'',owner:'',noReward:false,rtype:'',source:'',costOwner:'',amount:'',expiry:'',upType:'Free Tier Upgrade',tier:'',deal:'',
+  start:sc.start,startTime:sc.startTime,end:sc.end,endTime:sc.endTime,retDate:'',retTime:'',sku:false,skuFile:'',phone:false,phoneFile:'',minTx:false,minAmt:''}};}
+function newGroup(op){return {id:uid(),kind:'group',op,name:'',collapsed:false,children:[]};}
+function mk(sc,code,name,owner,minAmt,reward){const m=newMission(sc);m.code=code;m.expanded=false;Object.assign(m.f,{name,owner,minTx:true,minAmt:String(minAmt)});
+  if(reward===null)m.f.noReward=true;else Object.assign(m.f,{rtype:'Point',source:'Internal',costOwner:owner,amount:String(reward),expiry:'30'});return m;}
+
+function seed(){
+  const b=baseSC('sc1','SCBEL00001','Ecosystem shopping bonus');
+  b.prize=Object.assign({},b.prize,{type:'Level',tier:'Diamond'});
+  const g=newGroup('or');
+  g.children=[mk(b,'CMGDN00001','Belanja 1jt di GDN','GDN',1000000,100),mk(b,'CMGAN00001','Belanja 1jt di GAN','GAN',1000000,100),mk(b,'CMGEM00001','Belanja 1jt di GEM','GEM',1000000,100)];
+  b.rule.children=[g,mk(b,'CMTIK00001','Booking hotel di Tiket','Tiket',1000000,150),mk(b,'CMRAN00001','Belanja di Ranch Market','Ranch Market',500000,null),mk(b,'CMDEK00001','Belanja di Dekoruma','Dekoruma',2000000,200)];
+  const a=baseSC('sc2','SCBEL00002','Blibli x Tiket combo');
+  a.prize=Object.assign({},a.prize,{amount:'25000',expiry:'90'});a.end='2026-10-15';a.status='active';a.edit='final';
+  a.rule.children=[mk(a,'CMGDN00002','Belanja 100rb di GDN','GDN',100000,1000),mk(a,'CMTIK00002','Transaksi 100rb di Tiket','Tiket',100000,1000)];
+  const c=baseSC('sc3','SCBEL00003','Weekend combo');
+  c.prize=Object.assign({},c.prize,{amount:'10000',expiry:'30'});c.start='2026-11-01';c.end='2026-11-30';
+  const g1=newGroup('or');g1.children=[mk(c,'CMDEK00002','Belanja di Dekoruma','Dekoruma',1000000,200)];
+  c.rule.children=[g1,newGroup('or')];
+  return {campaigns:[b,a,c],counters:{sc:3,cm:{GDN:2,GAN:1,GEM:1,TIK:2,RAN:1,DEK:2}},settings:{maxDepth:2,showIcon:false}};
+}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&s.campaigns?s:null;}catch(e){return null;}}
+
+let S=load()||seed();
+let UI={view:'list',draft:null,draftIsNew:false,dirty:false,s1tried:false,showErrors:false,modal:null,toast:null,search:'',fEdit:'all',showFormula:false,notes:false,scrollTo:null,viewId:null};
+
+/* tree helpers */
+function walk(node,fn,depth,parent){depth=depth||0;fn(node,depth,parent||null);if(node.kind==='group')node.children.forEach(c=>walk(c,fn,depth+1,node));}
+function find(root,id){let r=null;walk(root,(n,d,p)=>{if(n.id===id)r={node:n,depth:d,parent:p};});return r;}
+function missions(root){const a=[];walk(root,n=>{if(n.kind==='mission')a.push(n);});return a;}
+function letters(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
+function labels(root){const L={};(function rec(g,prefix){let gi=0,mi=0;g.children.forEach(c=>{if(c.kind==='group'){gi++;const lab=prefix?prefix+'.'+gi:String(gi);L[c.id]='Group '+lab;rec(c,lab);}else{L[c.id]=(prefix||'')+letters(mi++);}});})(root,'');return L;}
+
+/* validation */
+function missing(m){const f=m.f,x=[];
+  if(!f.name.trim())x.push('name');
+  if(S.settings.showIcon&&!f.icon)x.push('icon');
+  if(!f.owner)x.push('owner');
+  if(!f.noReward){if(!f.rtype)x.push('rtype');if(!f.source)x.push('source');if(!f.costOwner)x.push('costOwner');
+    if(f.rtype==='Point'){if(!f.amount)x.push('amount');if(!f.expiry)x.push('expiry');}
+    if(f.rtype==='Level'&&!f.tier)x.push('tier');
+    if(f.rtype==='Deals'&&!f.deal)x.push('deal');}
+  if(!f.start)x.push('start');if(!f.end)x.push('end');
+  if(f.sku&&!f.skuFile)x.push('skuFile');if(f.phone&&!f.phoneFile)x.push('phoneFile');if(f.minTx&&!f.minAmt)x.push('minAmt');
+  return x;}
+function periodErr(m,sc){const f=m.f;if(!f.start||!f.end)return '';const s=dt(f.start,f.startTime),e=dt(f.end,f.endTime);
+  if(e<=s)return 'End must be after start';
+  if(s<dt(sc.start,sc.startTime)||e>dt(sc.end,sc.endTime))return 'Mission period must sit inside the Super Campaign period ('+fmtRange(sc.start,sc.end)+')';return '';}
+function complete(m,sc){return missing(m).length===0&&!periodErr(m,sc);}
+function groupIncomplete(g,sc){if(!g.children.length)return true;return g.children.some(c=>c.kind==='group'?groupIncomplete(c,sc):!complete(c,sc));}
+function ruleErrors(sc){const L=labels(sc.rule),e=[];if(!missions(sc.rule).length)e.push('The rule has no missions yet.');
+  walk(sc.rule,n=>{if(n.kind==='group'&&n.id!=='root'&&!n.children.length)e.push(L[n.id]+' is empty. Add a mission or remove the group.');
+    if(n.kind==='mission'){const nm=n.f.name?' ('+esc(n.f.name)+')':'';if(missing(n).length)e.push('Mission '+L[n.id]+nm+' is incomplete.');const pe=periodErr(n,sc);if(pe)e.push('Mission '+L[n.id]+nm+': '+esc(pe)+'.');}});return e;}
+function s1Missing(sc){const x=[],p=sc.prize;if(!sc.name.trim())x.push('name');if(!sc.displayName.trim())x.push('displayName');if(!sc.logo)x.push('logo');
+  if(!sc.campaignOwner)x.push('campaignOwner');if(!sc.costOwner)x.push('costOwner');if(!p.source)x.push('prize.source');if(!p.type)x.push('prize.type');
+  if(p.type==='Point'){if(!p.amount)x.push('prize.amount');if(!p.expiry)x.push('prize.expiry');}
+  if(p.type==='Level'&&!p.tier)x.push('prize.tier');if(p.type==='Deals'&&!p.deal)x.push('prize.deal');if(p.partner&&!p.alloc)x.push('prize.alloc');
+  if(!sc.start)x.push('start');if(!sc.end)x.push('end');if(sc.start&&sc.end&&dt(sc.end,sc.endTime)<=dt(sc.start,sc.startTime))x.push('endAfter');return x;}
+
+/* text helpers */
+function prizeText(p){if(p.type==='Point')return p.amount?fmtNum(p.amount)+' Blibli Tiket Points':'Points (amount not set)';if(p.type==='Level')return (p.tier||'Tier')+' upgrade';if(p.type==='Deals')return p.deal?'Deals: '+p.deal:'Deals (not set)';return '—';}
+function mPrize(m){const f=m.f;if(f.rtype==='Point')return f.amount?fmtNum(f.amount)+' points':'';if(f.rtype==='Level')return f.tier?f.tier+' upgrade':'';if(f.rtype==='Deals')return f.deal||'';return '';}
+function mSummary(m){const f=m.f,p=[],c=[];if(f.owner)p.push(f.owner);if(EVENT[f.owner])c.push(EVENT[f.owner]);if(f.minTx&&f.minAmt)c.push('min Rp'+fmtNum(f.minAmt));if(f.sku)c.push('SKU list');if(f.phone)c.push('phone list');if(c.length)p.push(c.join(', '));p.push(fmtRange(f.start,f.end));return p.join(' · ');}
+function mName(m,L){return m.f.name?esc(m.f.name):'<span class="muted">Mission '+L[m.id]+' (no name yet)</span>';}
+function opWord(op){return op==='and'?'<b class="w-and">ALL</b>':'<b class="w-or">ANY ONE</b>';}
+function outlineList(g,L){return '<ul class="ol">'+g.children.map(c=>{if(c.kind==='mission')return '<li>'+mName(c,L)+'</li>';if(!c.children.length)return '<li class="err">'+L[c.id]+' is empty</li>';
+  if(c.children.every(x=>x.kind==='mission'))return '<li>'+opWord(c.op)+' of: '+c.children.map(x=>mName(x,L)).join(', ')+'</li>';return '<li>'+opWord(c.op)+' of:'+outlineList(c,L)+'</li>';}).join('')+'</ul>';}
+function outline(sc){const L=labels(sc.rule);if(!sc.rule.children.length)return '<p class="muted">Add missions or groups to see the rule here.</p>';
+  return '<p>Member gets <b>'+esc(prizeText(sc.prize))+'</b> if they complete '+opWord(sc.rule.op)+' of these:</p>'+outlineList(sc.rule,L);}
+function formula(g,L,root){if(root===undefined)root=true;const parts=g.children.map(c=>c.kind==='mission'?(c.code||'['+L[c.id]+']'):(c.children.length?formula(c,L,false):'( )'));
+  const s=parts.join(g.op==='and'?' AND ':' OR ');return root?s:(g.children.length>1?'('+s+')':s);}
+
+/* field builders */
+function fText(k,label,val,o){o=o||{};return '<div class="fwrap"><label class="fld '+(o.err?'bad ':'')+(o.dis?'dis':'')+'"><span class="k">'+label+'</span><input type="'+(o.type||'text')+'" data-k="'+k+'" value="'+esc(val)+'" '+(o.dis?'disabled ':'')+(o.ph?'placeholder="'+esc(o.ph)+'" ':'')+(o.max?'maxlength="'+o.max+'" ':'')+(o.inputmode?'inputmode="'+o.inputmode+'"':'')+'>'+(o.suffix?'<span class="sfx">'+o.suffix+'</span>':'')+'</label>'+(o.hint?'<span class="hint">'+o.hint+'</span>':'')+'</div>';}
+function fSel(k,label,val,opts,o){o=o||{};return '<div class="fwrap"><label class="fld '+(o.err?'bad ':'')+(o.dis?'dis':'')+'"><span class="k">'+label+'</span><select data-k="'+k+'" '+(o.dis?'disabled':'')+'><option value="">'+(o.ph||'Select')+'</option>'+opts.map(x=>'<option value="'+esc(x)+'" '+(x===val?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>'+(o.hint?'<span class="hint">'+o.hint+'</span>':'')+'</div>';}
+function opSelect(k,op){return '<select class="opsel" data-k="'+k+'" aria-label="Rule type"><option value="and" '+(op==='and'?'selected':'')+'>All (AND)</option><option value="or" '+(op==='or'?'selected':'')+'>Any one (OR)</option></select>';}
+
+/* views */
+function header(){return '<header class="top"><div class="logo">blibli<span class="dot"></span>tiket</div><div class="top-r"><span class="proto">Prototype · Super Campaign</span><span>Log out</span></div></header>';}
+function sidebar(){return '<aside class="side"><div class="welcome"><div class="w1">Welcome,</div><div class="w2">ops@gdn-commerce.com</div></div><nav>'+NAV.map(n=>'<div class="nav '+(n==='Campaign'?'on':'')+'">'+n+'</div>').join('')+'</nav></aside>';}
+function crumbs(t){return '<div class="crumbs"><button class="lnk" data-act="toList">Super campaign list</button> › <span>'+t+'</span></div>';}
+function stepper(n){return '<div class="stepper"><div class="st-h"><b>'+(n===1?'Campaign info &amp; grand prize':'Set missions')+'</b><span><b>'+n+'</b> out of 2</span></div><div class="bars"><i class="on"></i><i class="'+(n===2?'on':'')+'"></i></div></div>';}
+
+function listView(){const q=UI.search.toLowerCase();const rows=S.campaigns.filter(c=>c.name.toLowerCase().includes(q)&&(UI.fEdit==='all'||c.edit===UI.fEdit));
+  return '<h1>Campaigns</h1><div class="tabs"><span class="tab">Regular campaign</span><span class="tab on">Super campaign</span></div>'+
+  '<div class="toolbar"><label class="search"><input type="text" placeholder="Search campaign name" aria-label="Search campaign name" data-k="ui:search" value="'+esc(UI.search)+'"></label>'+
+  '<select class="filter" data-k="ui:fEdit" aria-label="Editability"><option value="all" '+(UI.fEdit==='all'?'selected':'')+'>All editability</option><option value="draft" '+(UI.fEdit==='draft'?'selected':'')+'>Draft</option><option value="final" '+(UI.fEdit==='final'?'selected':'')+'>Final</option></select>'+
+  '<span class="sp"></span><button class="btn" data-act="new">+ Add super campaign</button></div>'+
+  '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Campaign name &amp; code</th><th>Display name</th><th>Grand prize</th><th>Missions</th><th>Status</th><th>Editability</th><th>Period</th><th>Action</th></tr></thead><tbody>'+
+  (rows.map(c=>'<tr><td><div class="code">'+c.code+'</div><div>'+esc(c.name)+'</div></td><td>'+esc(c.displayName)+'</td><td>'+esc(prizeText(c.prize))+'</td><td>'+missions(c.rule).length+'</td>'+
+    '<td><label class="cbx"><input type="checkbox" data-act="toggleActive" data-id="'+c.id+'" '+(c.status==='active'?'checked':'')+'> Active</label></td><td>'+(c.edit==='draft'?'Draft':'Final')+'</td>'+
+    '<td>'+fmtDate(c.start)+' – '+fmtDate(c.end)+'</td><td>'+(c.edit==='draft'?'<button class="lnk" data-act="edit" data-id="'+c.id+'">Edit</button>':'<button class="lnk" data-act="viewsc" data-id="'+c.id+'">View</button>')+'</td></tr>').join('')||'<tr><td colspan="8" class="muted">No campaigns match.</td></tr>')+
+  '</tbody></table></div>';}
+
+function s1err(k){return UI.s1tried&&s1Missing(UI.draft).includes(k);}
+function prizeFields(p){
+  if(p.type==='Point')return '<div class="g2">'+fText('sc:prize.amount','Amount',p.amount,{suffix:'Points',err:s1err('prize.amount'),inputmode:'numeric'})+fText('sc:prize.expiry','Point expires in…',p.expiry,{suffix:'Days',err:s1err('prize.expiry'),inputmode:'numeric',hint:'Rounded to the 1st of the next month.'})+'</div>';
+  if(p.type==='Level')return '<div class="g2">'+fSel('sc:prize.tier','Target tier',p.tier,TIERS,{err:s1err('prize.tier')})+fText('sc:prize.ret','Retention end (not available yet)','',{dis:true})+'</div>';
+  if(p.type==='Deals')return '<div class="g2">'+fSel('sc:prize.deal','Deals',p.deal,DEALS,{err:s1err('prize.deal')})+'<div></div></div>';return '';}
+function step1View(){const d=UI.draft,p=d.prize;
+  return crumbs(UI.draftIsNew?'Add super campaign':'Edit super campaign')+stepper(1)+
+  '<section class="card"><h3>Campaign info</h3><div class="g2">'+fText('sc:name','Campaign name',d.name,{err:s1err('name'),max:100,hint:'This field is for searching purposes.'})+fText('sc:displayName','Display name',d.displayName,{err:s1err('displayName'),hint:'This is the name that will be shown on UI.'})+'</div>'+
+  '<h4>Campaign logo</h4><div class="file-row">'+fText('sc:logo','Choose file',d.logo,{dis:true,err:s1err('logo'),ph:'No file selected'})+'<button class="btn-o" data-act="pick" data-k="sc:logo" data-v="asset.png">Select file</button></div><span class="hint">Upload a 1:1 square JPG or PNG (max. 1 MB).</span>'+
+  '<h4>Owners</h4><div class="g2">'+fSel('sc:campaignOwner','Campaign owner',d.campaignOwner,ENT,{err:s1err('campaignOwner')})+fSel('sc:costOwner','Cost owner',d.costOwner,ENT,{err:s1err('costOwner'),hint:'Pays for the grand prize.'})+'</div>'+
+  '<h4>Grand prize</h4><div class="g2">'+fSel('sc:prize.source','Source',p.source,['Internal','External'],{err:s1err('prize.source')})+fSel('sc:prize.type','Reward type',p.type,['Point','Level','Deals'],{err:s1err('prize.type'),hint:'Raffle is added once supported.'})+'</div>'+
+  (p.source==='External'?'<div class="g2" style="margin-top:10px">'+fSel('sc:prize.partner','External partner code (optional)',p.partner,['BCA','Chum Bucket Corp'],{hint:'Pick when the prize is billed to a non-entity partner, e.g. BCA.'})+fText('sc:prize.alloc','Cost allocation by external partner',p.alloc,{dis:!p.partner,suffix:'%',err:s1err('prize.alloc'),inputmode:'numeric'})+'</div>':'')+
+  '<div style="margin-top:10px">'+prizeFields(p)+'</div></section>'+
+  '<section class="card"><h3>Period</h3><div class="g2">'+fText('sc:start','Start date',d.start,{type:'date',err:s1err('start')})+fText('sc:startTime','Start time',d.startTime,{type:'time'})+fText('sc:end','End date',d.end,{type:'date',err:s1err('end')||s1err('endAfter')})+fText('sc:endTime','End time',d.endTime,{type:'time'})+'</div>'+
+  (s1err('endAfter')?'<p class="errt">End must be after start.</p>':'')+
+  '<div class="g2" style="margin-top:10px">'+fText('sc:ret','Retention end date (not available yet)','',{dis:true})+fText('sc:retT','Retention end time (not available yet)','',{dis:true})+'</div></section>'+
+  '<div class="footer"><span class="sp"></span><button class="btn" data-act="toStep2">Set missions →</button></div>';}
+
+function addBar(id,depth){const canG=depth<S.settings.maxDepth;return '<div class="addbar"><button class="lnk" data-act="addMission" data-id="'+id+'">+ mission</button>'+(canG?'<button class="lnk" data-act="addGroup" data-id="'+id+'">+ group</button>':'<span class="lnk dim">+ group</span><span class="maxchip">max nesting reached</span>')+'</div>';}
+function rowHTML(m,L,sc,ro){const pz=m.f.noReward?'<span class="pz none">No prize</span>':'<span class="pz">'+esc(mPrize(m)||'—')+'</span>';
+  return '<div class="mrow '+(ro?'':'click')+'" '+(ro?'':'data-act="expand" data-id="'+m.id+'" title="Click to edit"')+' id="n-'+m.id+'"><div class="mmain"><div class="mname"><span class="chip">'+L[m.id]+'</span>'+esc(m.f.name)+(m.code?'<span class="code">'+m.code+'</span>':'')+'</div><div class="msub">'+esc(mSummary(m))+'</div></div>'+
+  '<div class="mright">'+pz+(ro?'':'<span class="okmark" title="Complete">✓</span><button class="lnk danger" data-act="del" data-id="'+m.id+'">Delete</button>')+'</div></div>';}
+function err(m,k){return (UI.showErrors||m.tried)&&missing(m).includes(k);}
+function condRow(m,key,label,inner){return '<div class="cond"><label class="cbx"><input type="checkbox" data-k="m:'+m.id+':'+key+'" '+(m.f[key]?'checked':'')+'> '+label+'</label><div class="'+(m.f[key]?'':'muted-block')+'">'+inner+'</div></div>';}
+function formHTML(m,L,sc){const f=m.f,k=x=>'m:'+m.id+':'+x,E=x=>err(m,x),miss=missing(m),pe=periodErr(m,sc),inc=miss.length||pe;
+  const evt=f.owner?(EVENT[f.owner]||'to confirm with tech'):'';const nr=f.noReward;
+  let typeFields='';
+  if(f.rtype==='Point')typeFields=fText(k('amount'),'Amount',f.amount,{suffix:'Points',err:E('amount'),dis:nr,inputmode:'numeric'})+fText(k('expiry'),'Point expires in',f.expiry,{suffix:'Days',err:E('expiry'),dis:nr,inputmode:'numeric'});
+  if(f.rtype==='Level')typeFields=fSel(k('upType'),'Upgrade type',f.upType,['Free Tier Upgrade'],{dis:nr})+fSel(k('tier'),'Target tier',f.tier,TIERS,{err:E('tier'),dis:nr});
+  if(f.rtype==='Deals')typeFields=fSel(k('deal'),'Deals',f.deal,DEALS,{err:E('deal'),dis:nr})+'<div></div>';
+  return '<div class="mform" id="n-'+m.id+'"><div class="mf-h"><div class="gl"><span class="chip">'+L[m.id]+'</span><b>'+(esc(f.name)||'New mission')+'</b>'+(m.code?'<span class="code">'+m.code+'</span>':'')+
+  (inc?'<span class="badge bad">Incomplete'+(miss.length?' · '+miss.length+' field'+(miss.length>1?'s':''):'')+'</span>':'<span class="badge ok">Complete</span>')+'</div>'+
+  '<div class="gr"><button class="lnk danger" data-act="del" data-id="'+m.id+'">Delete</button><button class="lnk '+(inc?'dim':'')+'" data-act="mcollapse" data-id="'+m.id+'">Collapse</button></div></div>'+
+  '<h4>Campaign info</h4><div class="g2">'+fText(k('name'),'Campaign name',f.name,{err:E('name'),max:100,hint:f.name.length+'/100 · internal, used for search'})+fText(k('dn'),'Display name','',{dis:true,hint:'Not available on UI yet, same as Regular campaign.'})+'</div>'+
+  (S.settings.showIcon?'<div class="file-row" style="margin-top:10px">'+fText(k('icon'),'Mission icon',f.icon,{dis:true,err:E('icon'),ph:'No file selected'})+'<button class="btn-o" data-act="pick" data-k="'+k('icon')+'" data-v="icon.png">Select file</button></div><span class="hint">1:1 PNG or JPG, max 1 MB. Mission-only field (open item).</span>':'')+
+  '<div class="row-b" style="margin-top:18px"><h4 style="margin:0">Reward type</h4><label class="toggle"><input type="checkbox" data-k="'+k('noReward')+'" '+(nr?'checked':'')+'><span class="sw"></span>No reward</label></div>'+
+  '<div class="g2" style="margin-top:8px">'+fSel(k('owner'),'Campaign owner',f.owner,ENT,{err:E('owner'),hint:evt?'Counts when: '+evt.toLowerCase()+' (mission-only hint)':'Decides whose transactions count.'})+'<div></div></div>'+
+  '<div class="g2 '+(nr?'off':'')+'" style="margin-top:10px">'+fSel(k('rtype'),'Reward type',f.rtype,['Point','Level','Deals'],{err:E('rtype'),dis:nr,hint:'Raffle is added once supported.'})+fSel(k('source'),'Source',f.source,['Internal','External'],{err:E('source'),dis:nr})+
+  fSel(k('costOwner'),'Cost owner',f.costOwner,ENT.concat(EXT),{err:E('costOwner'),dis:nr,hint:'Pays for this mission’s prize.'})+'<div></div>'+typeFields+'</div>'+
+  '<h4>Period</h4><div class="g2">'+fText(k('start'),'Start date',f.start,{type:'date',err:E('start')||!!pe})+fText(k('startTime'),'Start time',f.startTime,{type:'time'})+fText(k('end'),'End date',f.end,{type:'date',err:E('end')||!!pe})+fText(k('endTime'),'End time',f.endTime,{type:'time'})+'</div>'+
+  (pe?'<p class="errt">'+esc(pe)+'.</p>':'<span class="hint">Prefilled from the Super Campaign period (mission-only).</span>')+
+  '<h4>Retention end date</h4><div class="g2">'+fText(k('retDate'),'Retention end date',f.retDate,{type:'date'})+fText(k('retTime'),'Retention end time',f.retTime,{type:'time'})+'</div>'+
+  '<h4>Conditions to participate</h4>'+
+  condRow(m,'sku','Based on SKU','<div class="file-row">'+fText(k('skuFile'),'SKU file',f.skuFile,{dis:true,err:E('skuFile'),ph:'Upload .csv'})+'<button class="btn-o" data-act="pick" data-k="'+k('skuFile')+'" data-v="sku.csv" '+(f.sku?'':'disabled')+'>Select file</button></div><span class="hint">Single "SKU" column, max 10,000 rows.</span>')+
+  condRow(m,'phone','Based on phone number','<div class="file-row">'+fText(k('phoneFile'),'Phone number file',f.phoneFile,{dis:true,err:E('phoneFile'),ph:'Upload .csv'})+'<button class="btn-o" data-act="pick" data-k="'+k('phoneFile')+'" data-v="phone.csv" '+(f.phone?'':'disabled')+'>Select file</button></div><span class="hint">Single "Phone No." column. Max rows to confirm with tech.</span>')+
+  condRow(m,'minTx','Based on min. transaction',fText(k('minAmt'),'Min. Rp',f.minAmt,{dis:!f.minTx,err:E('minAmt'),inputmode:'numeric',ph:'Amount'}))+
+  '</div>';}
+function nodeHTML(c,depth,L,sc){if(c.kind==='mission')return c.expanded?formHTML(c,L,sc):rowHTML(c,L,sc,false);
+  const inc=groupIncomplete(c,sc);
+  return '<div class="grp '+c.op+'" id="n-'+c.id+'"><div class="ghd"><div class="gl"><span class="chip">'+L[c.id]+'</span><input class="gname-in" type="text" placeholder="Display name (optional)" aria-label="Group display name" data-k="g:'+c.id+':name" value="'+esc(c.name)+'">'+opSelect('g:'+c.id+':op',c.op)+' of these '+(inc?'<span class="badge bad">Incomplete</span>':'')+'</div>'+
+  '<div class="gr"><button class="lnk danger" data-act="del" data-id="'+c.id+'">Delete</button><button class="lnk" data-act="gcollapse" data-id="'+c.id+'">'+(c.collapsed?'Expand':'Collapse')+'</button></div></div>'+
+  (c.collapsed?'<div class="gsum">'+(c.children.length?opWord(c.op)+' of: '+c.children.map(x=>x.kind==='mission'?mName(x,L):L[x.id]).join(', '):'Empty group')+'</div>':
+  (c.children.length?c.children.map(x=>nodeHTML(x,depth+1,L,sc)).join(''):'<div class="empty err">Empty group — add at least one mission or remove the group.</div>')+addBar(c.id,depth))+'</div>';}
+function outlineCard(sc,cls){const L=labels(sc.rule);return '<section class="'+cls+'"><div class="row-b"><h3>Rule summary</h3><button class="lnk" data-act="formula">'+(UI.showFormula?'Hide formula':'Show formula')+'</button></div><div class="outline">'+outline(sc)+'</div>'+(UI.showFormula?'<code class="formula">'+(esc(formula(sc.rule,L))||'—')+'</code>':'')+'</section>';}
+function step2View(){const d=UI.draft,L=labels(d.rule),n=missions(d.rule).length;
+  return crumbs(UI.draftIsNew?'Add super campaign':'Edit super campaign')+stepper(2)+outlineCard(d,'card')+
+  '<div class="grp root '+d.rule.op+'" id="n-root"><div class="ghd"><div class="gl">Grand prize is given when '+opSelect('g:root:op',d.rule.op)+' of these are done</div><div class="gr"><span class="muted">'+n+' mission'+(n===1?'':'s')+'</span><button class="lnk" data-act="collapseAll">Collapse all</button><button class="lnk" data-act="expandAll">Expand all</button></div></div>'+
+  (d.rule.children.length?d.rule.children.map(c=>nodeHTML(c,1,L,d)).join(''):'<div class="empty">Start by adding a mission or a group.</div>')+addBar('root',0)+'</div>'+
+  '<div class="footer"><button class="btn-o" data-act="toStep1">← Campaign info &amp; grand prize</button><span class="sp"></span>'+(UI.dirty?'<span class="muted">Unsaved changes</span>':'')+'<button class="btn" data-act="save">Save</button></div>';}
+function grouped(g,L,sc){return g.children.map(c=>{if(c.kind==='mission')return rowHTML(c,L,sc,true);
+  return '<div class="grp '+c.op+'"><div class="ghd"><div class="gl"><span class="chip">'+L[c.id]+'</span>'+(c.name?'<span class="gname">'+esc(c.name)+'</span>':'')+'<span class="opl">'+(c.op==='and'?'All of these':'Any one of these')+'</span></div></div>'+(c.children.length?grouped(c,L,sc):'<div class="empty err">Empty group</div>')+'</div>';}).join('');}
+function readView(){const sc=S.campaigns.find(c=>c.id===UI.viewId);const L=labels(sc.rule);
+  return crumbs(esc(sc.name))+'<div class="lockbar">This campaign is <b>Final</b>, so the rule is locked. This read-only page is a preview; the detail page (P6) isn’t specified yet.</div>'+
+  '<section class="card"><h3>Campaign info &amp; grand prize</h3><dl class="sum"><dt>Code</dt><dd>'+sc.code+'</dd><dt>Status</dt><dd>'+(sc.status==='active'?'Active':'Inactive')+'</dd><dt>Period</dt><dd>'+fmtDate(sc.start)+' – '+fmtDate(sc.end)+'</dd><dt>Grand prize</dt><dd>'+esc(prizeText(sc.prize))+'</dd><dt>Campaign owner</dt><dd>'+esc(sc.campaignOwner)+'</dd><dt>Cost owner</dt><dd>'+esc(sc.costOwner)+'</dd></dl></section>'+
+  outlineCard(sc,'card')+'<div class="grp root '+sc.rule.op+'"><div class="ghd"><span class="opl">'+(sc.rule.op==='and'?'All of these':'Any one of these')+'</span></div>'+grouped(sc.rule,L,sc)+'</div>'+
+  '<div class="footer"><button class="btn-o" data-act="toList">← Back to list</button></div>';}
+
+function modal(body,foot,wide){return '<div class="ov" data-act="ovClick"><div class="modal '+(wide?'wide':'')+'" role="dialog" aria-modal="true">'+body+'<div class="mfoot">'+foot+'</div></div></div>';}
+function modalView(){const M=UI.modal;if(!M)return '';
+  if(M.type==='leave')return modal('<h3>Leave without saving?</h3><p>Your changes to this Super Campaign will be lost.</p>','<button class="lnk" data-act="closeModal">Keep editing</button><button class="btn danger-btn" data-act="leaveConfirm">Leave</button>');
+  const sc=S.campaigns.find(c=>c.id===M.id),n=missions(sc.rule).length;
+  if(M.type==='deactivate')return modal('<h3>Deactivate this campaign?</h3><p>All '+n+' missions stop too. The rule stays locked.</p>','<button class="lnk" data-act="closeModal">Cancel</button><button class="btn" data-act="deactConfirm" data-id="'+sc.id+'">Deactivate</button>');
+  if(M.type==='reactivate')return modal('<h3>Reactivate this campaign?</h3><p>All '+n+' missions go live again. The rule is already locked.</p>','<button class="lnk" data-act="closeModal">Cancel</button><button class="btn" data-act="reactConfirm" data-id="'+sc.id+'">Reactivate</button>');
+  const L=labels(sc.rule),errs=ruleErrors(sc),notStarted=dt(sc.start,sc.startTime)>Date.now();
+  return modal('<div class="row-b"><h3>Activate this campaign?</h3><button class="x" data-act="closeModal" aria-label="Close">×</button></div>'+
+    '<dl class="sum"><dt>Name</dt><dd>'+esc(sc.name)+'</dd><dt>Code</dt><dd>'+sc.code+'</dd><dt>Period</dt><dd>'+fmtDate(sc.start)+' – '+fmtDate(sc.end)+'</dd><dt>Grand prize</dt><dd>'+esc(prizeText(sc.prize))+'</dd><dt>Grand prize cost owner</dt><dd>'+esc(sc.costOwner)+'</dd></dl>'+
+    (notStarted&&!errs.length?'<p class="note">Members can start from '+fmtDate(sc.start)+'.</p>':'')+
+    (errs.length?'<div class="blocked"><b>This campaign can’t be activated yet</b><ul>'+errs.map(e=>'<li>'+e+'</li>').join('')+'</ul><button class="lnk" data-act="fix" data-id="'+sc.id+'">Fix in rule builder</button></div>':'')+
+    outlineCard(sc,'in-modal')+'<h4>This campaign has '+n+' mission'+(n===1?'':'s')+'</h4><div class="mscroll"><div class="grp root '+sc.rule.op+'"><div class="ghd"><span class="opl">'+(sc.rule.op==='and'?'All of these':'Any one of these')+'</span></div>'+grouped(sc.rule,L,sc)+'</div></div>'+
+    (errs.length?'':'<div class="warn"><b>Activating locks the rule, and all '+n+' missions go live together.</b><br>You can deactivate later, but the rule can’t be edited anymore.</div>'),
+    '<button class="lnk" data-act="closeModal">Cancel</button><button class="btn" data-act="activateConfirm" data-id="'+sc.id+'" '+(errs.length?'disabled':'')+'>Activate &amp; lock</button>',true);}
+function toastView(){return UI.toast?'<div class="toast" role="status">'+UI.toast+'</div>':'';}
+let toastTimer=null;function toast(msg){UI.toast=msg;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{UI.toast=null;render();},3400);}
+function notesView(){return '<button class="notes-btn" data-act="notes">'+(UI.notes?'Close notes':'Prototype notes')+'</button>'+(UI.notes?'<aside class="notes"><h3>Prototype notes</h3><p>Clickable mock of the Super Campaign setup flow for UX review. Data is fake and saved only in this browser.</p>'+
+  '<h4>Try this</h4><ul><li>Open <b>Ecosystem shopping bonus</b> (Draft) → Edit → Set missions.</li><li>Add a group inside a group, switch AND / OR, add and fill missions.</li><li>Tick <b>Active</b> on a Draft to see the activate popup. <b>Weekend combo</b> shows the blocked state.</li><li>Tick Active off on <b>Blibli x Tiket combo</b> to see deactivation.</li></ul>'+
+  '<h4>Settings for open items</h4><label><span class="k2">Max group depth (open)</span><select data-k="set:maxDepth">'+[1,2,3].map(n=>'<option value="'+n+'" '+(S.settings.maxDepth===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+
+  '<label class="cbx"><input type="checkbox" data-k="set:showIcon" '+(S.settings.showIcon?'checked':'')+'> Show mission icon field (open)</label>'+
+  '<h4>Still open, not modeled</h4><ul><li>Moving a mission between groups</li><li>Max missions per Super Campaign (tech design caps at 50)</li><li>Save: one Save button vs auto-save per action</li><li>Eligibility at Super Campaign level</li><li>What’s still editable after Final</li><li>Entity list and “Counts when” events are illustrative</li></ul>'+
+  '<div style="margin-top:12px"><button class="btn-o" data-act="reset">Reset prototype data</button></div></aside>':'');}
+function view(){const v=UI.view==='list'?listView():UI.view==='step1'?step1View():UI.view==='step2'?step2View():readView();
+  return header()+'<div class="shell">'+sidebar()+'<main class="main">'+v+'</main></div>'+modalView()+toastView()+notesView();}
+
+const app=document.getElementById('app');
+function render(){const a=document.activeElement;let key=null,ss=null,se=null;
+  if(a&&a.dataset&&a.dataset.k){key=a.dataset.k;try{ss=a.selectionStart;se=a.selectionEnd;}catch(e){}}
+  app.innerHTML=view();
+  if(key){const sel='[data-k="'+(window.CSS&&CSS.escape?CSS.escape(key):key)+'"]';const el=app.querySelector(sel);if(el&&!el.disabled){el.focus({preventScroll:true});try{if(ss!=null)el.setSelectionRange(ss,se);}catch(e){}}}
+  if(UI.scrollTo){const el=document.getElementById('n-'+UI.scrollTo);if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});UI.scrollTo=null;}}
+
+function handleField(k,v){const parts=k.split(':'),scope=parts[0],a=parts[1],b=parts[2];
+  if(scope==='ui'){UI[a]=v;return render();}
+  if(scope==='set'){S.settings[a]=a==='maxDepth'?Number(v):v;persist();return render();}
+  const d=UI.draft;if(!d)return;
+  if(scope==='sc'){if(['prize.amount','prize.expiry','prize.alloc'].includes(a))v=String(v).replace(/\D/g,'');
+    if(a.indexOf('prize.')===0){const key=a.slice(6);d.prize[key]=v;if(key==='source'&&v!=='External'){d.prize.partner='';d.prize.alloc='';}if(key==='partner'&&!v)d.prize.alloc='';}else d[a]=v;}
+  if(scope==='g'){const r=find(d.rule,a);if(r)r.node[b]=v;}
+  if(scope==='m'){const r=find(d.rule,a);if(!r)return;if(['amount','expiry','minAmt'].includes(b))v=String(v).replace(/\D/g,'');r.node.f[b]=v;
+    if(b==='minTx'&&!v)r.node.f.minAmt='';if(b==='sku'&&!v)r.node.f.skuFile='';if(b==='phone'&&!v)r.node.f.phoneFile='';}
+  UI.dirty=true;render();}
+app.addEventListener('input',e=>{const el=e.target;if(!el.dataset||!el.dataset.k)return;if(el.tagName==='INPUT'&&el.type==='text')handleField(el.dataset.k,el.value);});
+app.addEventListener('change',e=>{const el=e.target;if(!el.dataset||!el.dataset.k)return;if(el.tagName==='INPUT'&&el.type==='text')return;handleField(el.dataset.k,el.type==='checkbox'?el.checked:el.value);});
+
+function openDraft(id,step){UI.draft=clone(S.campaigns.find(c=>c.id===id));walk(UI.draft.rule,n=>{if(n.kind==='mission'){n.expanded=!complete(n,UI.draft);n.tried=false;}});
+  UI.draftIsNew=false;UI.dirty=false;UI.s1tried=false;UI.showErrors=false;UI.view=step;}
+function save(){const d=UI.draft;if(!d.code){S.counters.sc++;d.code='SCBEL'+pad(S.counters.sc);}
+  walk(d.rule,n=>{if(n.kind==='mission'&&!n.code&&n.f.owner){const a=ABBR[n.f.owner]||'XXX';S.counters.cm[a]=(S.counters.cm[a]||0)+1;n.code='CM'+a+pad(S.counters.cm[a]);}});
+  const i=S.campaigns.findIndex(c=>c.id===d.id),copy=clone(d);if(i>=0)S.campaigns[i]=copy;else S.campaigns.unshift(copy);persist();
+  UI.dirty=false;UI.draftIsNew=false;const errs=ruleErrors(d).length;UI.showErrors=errs>0;
+  toast(errs?'Draft saved. '+errs+' thing'+(errs>1?'s':'')+' to fix before you can activate.':'Draft saved. You can activate it from the list.');}
+
+app.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||!app.contains(el))return;const act=el.dataset.act,id=el.dataset.id;
+  if(act==='ovClick'){if(e.target===el){UI.modal=null;render();}return;}
+  if(el.disabled)return;
+  const D=UI.draft;
+  switch(act){
+    case 'new':{const nid='sc'+uid();const d=baseSC(nid,'','');Object.assign(d,{logo:'',campaignOwner:'',costOwner:'',start:'',end:''});d.prize={source:'',type:'',partner:'',alloc:'',amount:'',expiry:'',tier:'',deal:''};
+      UI.draft=d;UI.draftIsNew=true;UI.dirty=false;UI.s1tried=false;UI.showErrors=false;UI.view='step1';break;}
+    case 'edit':openDraft(id,'step1');break;
+    case 'viewsc':UI.viewId=id;UI.view='view';UI.showFormula=false;break;
+    case 'toList':if(UI.dirty&&(UI.view==='step1'||UI.view==='step2'))UI.modal={type:'leave'};else{UI.view='list';UI.draft=null;}break;
+    case 'leaveConfirm':UI.modal=null;UI.dirty=false;UI.draft=null;UI.view='list';break;
+    case 'toStep2':if(s1Missing(D).length){UI.s1tried=true;toast('Fill the highlighted fields first.');}else{UI.view='step2';window.scrollTo(0,0);}break;
+    case 'toStep1':UI.view='step1';window.scrollTo(0,0);break;
+    case 'save':save();break;
+    case 'formula':UI.showFormula=!UI.showFormula;break;
+    case 'addMission':{const g=id==='root'?D.rule:find(D.rule,id).node;const m=newMission(D);g.children.push(m);g.collapsed=false;UI.scrollTo=m.id;UI.dirty=true;break;}
+    case 'addGroup':{const p=id==='root'?D.rule:find(D.rule,id).node;const g=newGroup(p.op==='and'?'or':'and');p.children.push(g);p.collapsed=false;UI.scrollTo=g.id;UI.dirty=true;break;}
+    case 'del':{const r=find(D.rule,id);if(r&&r.parent){r.parent.children=r.parent.children.filter(c=>c.id!==id);UI.dirty=true;toast(r.node.kind==='group'?'Group removed.':'Mission removed.');}break;}
+    case 'gcollapse':{const r=find(D.rule,id);r.node.collapsed=!r.node.collapsed;break;}
+    case 'expand':{const r=find(D.rule,id);r.node.expanded=true;break;}
+    case 'mcollapse':{const r=find(D.rule,id);if(complete(r.node,D))r.node.expanded=false;else{r.node.tried=true;toast('Fill the highlighted fields to collapse this mission.');}break;}
+    case 'collapseAll':walk(D.rule,n=>{if(n.kind==='mission'&&complete(n,D))n.expanded=false;});break;
+    case 'expandAll':walk(D.rule,n=>{if(n.kind==='mission')n.expanded=true;if(n.kind==='group')n.collapsed=false;});break;
+    case 'pick':handleField(el.dataset.k,el.dataset.v);return;
+    case 'toggleActive':{e.preventDefault();const sc=S.campaigns.find(c=>c.id===id);UI.showFormula=false;UI.modal={type:sc.status==='active'?'deactivate':(sc.edit==='final'?'reactivate':'activate'),id};break;}
+    case 'closeModal':UI.modal=null;break;
+    case 'activateConfirm':{const sc=S.campaigns.find(c=>c.id===id);sc.status='active';sc.edit='final';persist();UI.modal=null;toast('Campaign activated. The rule is now locked.');break;}
+    case 'deactConfirm':{const sc=S.campaigns.find(c=>c.id===id);sc.status='inactive';persist();UI.modal=null;toast('Campaign deactivated. All missions stopped.');break;}
+    case 'reactConfirm':{const sc=S.campaigns.find(c=>c.id===id);sc.status='active';persist();UI.modal=null;toast('Campaign reactivated.');break;}
+    case 'fix':openDraft(id,'step2');UI.showErrors=true;UI.modal=null;window.scrollTo(0,0);break;
+    case 'notes':UI.notes=!UI.notes;break;
+    case 'reset':S=seed();persist();UI=Object.assign(UI,{view:'list',draft:null,modal:null,notes:false,dirty:false});toast('Prototype data reset.');break;
+    default:return;}
+  render();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.modal){UI.modal=null;render();}});
+render();
+</script>
+</body>
+</html>
